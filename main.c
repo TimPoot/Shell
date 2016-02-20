@@ -11,15 +11,16 @@ const char *mypath[] = {
 };
 
 int main (){
-  char *path = "/home";
+  char path[1024];
   char input[1024];
   char *argv[10];
   int argc = 0;
   //int i; still needed ???
-  
+
+  strcpy(path, mypath[1]);
   while (1){
     /* Wait for input */
-    printf ("prompt>%s ", path);
+    printf ("prompt >%s", path);
     fgets (input, sizeof(input), stdin);
     
     
@@ -30,7 +31,11 @@ int main (){
     }  
 
     if(strcmp(argv[0], "cd") == 0){
-      printf("test");
+      if(argc == 2){
+        strcat(path, argv[1]);
+      }else{
+        printf("Please only enter 2 arguments\n");
+      }
     }
 
     /* If necessary locate executable using mypath array 
