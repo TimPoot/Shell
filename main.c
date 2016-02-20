@@ -20,7 +20,7 @@ int main (){
   strcpy(path, mypath[1]);
   while (1){
     /* Wait for input */
-    printf ("prompt >%s", path);
+    printf ("prompt >%s ", path);
     fgets (input, sizeof(input), stdin);
     
     
@@ -28,7 +28,8 @@ int main (){
     char * iptr = input; //input pointer needed for strsep argument
     while ((argv[argc] = strsep(&iptr, " ")) != NULL){
       argc++;
-    }  
+    }
+    argv[argc-1][strlen(argv[argc-1])-1] = 0; //remove last \n from string 
 
     if(strcmp(argv[0], "cd") == 0){
       if(argc == 2){
