@@ -12,13 +12,17 @@ const char *mypath[] = {
 };
 
 int main (){
+  DIR *directory;
+  char bpath[256]; //pathbuffer
   char path[1024];
   char input[1024];
   char *argv[10];
   int argc = 0;
   int exit = 1;
-
-  strcpy(path, mypath[1]);
+  
+  strcpy(path, "/home");
+  strcpy(bpath, path);
+  directory = opendir(path);
   while (exit){
     /* Wait for input */
     printf ("prompt >%s ", path);
@@ -35,11 +39,18 @@ int main (){
 
     if(strcmp(argv[0], "cd") == 0){ //cd 
       if(argc == 2){
-        strcat(path, argv[1]);
+        strcat(bpath, argv[1]);
+        if(opendir(bpath) != NULL){
+          strcpy(path, bpath);
+          directory = opendir(path);
+        }else{
+          strcpy(bpath, path);
+          printf("That directory does not exist\n");
+        }
       }else{
         printf("Please only enter 2 arguments\n");
       }
-    }else if(strcmp(argv[0], "exit") == 0){
+    }else if(strcmp(argv[0], "exit") == 0){ //exit 
       exit = 0;
     }
 
