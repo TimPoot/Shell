@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <sys/stath.h>
 
 const char *mypath[] = {
   "./",
@@ -13,6 +14,7 @@ const char *mypath[] = {
 
 int main (){
   DIR *directory;
+  struct stat statbuf; //statbuffer used for stat()
   char bpath[256]; //pathbuffer
   char path[1024];
   char input[1024];
@@ -55,14 +57,15 @@ int main (){
     }
 
     /* If necessary locate executable using mypath array 
-    Launch executable 
-    if (fork () == 0){
-      //TODO...
-      execv (...);
+    Launch executable */
+    if (fork() == 0){
+      if(strstr(argv[0], "/")){ //check if first arg contains a "/" 
+        execv (...);
+      }
       //TODO...
     }else{
       wait (...);
-    }*/
+    }
 
     argc = 0;
   }
