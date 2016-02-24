@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <stdbool.h>
+#include <sys/wait.h>
+#include <errno.h>
 
 const char *mypath[] = {
   "./",
@@ -12,23 +15,50 @@ const char *mypath[] = {
   NULL
 };
 
+char * getParentDir(char path[]){
+  int i = 2;
+  if(strcmp(path, "/") == 0){
+    printf("There is no parent directory\n");
+  }else{
+    path[strlen(path) - 1] = '\0';
+    printf("%i", atoi(strrchr(path, '/')));
+    path[atoi(strrchr(path, '/'))] = '\0';
+  }
+  return path;
+}
+
+//checks if the name of the executeble exists in standard locations,
+//returns NULL if not found.
+char * findDefaultPath (struct stat statbuf, char *filename){
+  char fpath[1024];
+  int i;
+  for (i = 0; mypath[i] != NULL; i++){
+    strcpy(fpath, mypath[i]);
+    strcat(fpath, filename);
+    if (stat(fpath, &statbuf) == 0){
+      return fpath;
+    }
+  }
+  return NULL;
+}
+
+
 int main (){
   DIR *directory;
   struct stat statbuf; //statbuffer used for stat()
-  char bpath[256]; //pathbuffer
   char path[1024];
   char input[1024];
-  char *argv[10];
+  char *argv[11];
   int argc = 0;
   int exit = 1;
+  int status;
   int i;
   
-  strcpy(path, "/home");
-  strcpy(bpath, path);
-  directory = opendir(path);
+  chdir(getenv("HOME"));
+
   while (exit){
     /* Wait for input */
-    printf ("prompt >%s ", path);
+    printf ("prompt >%s ", getcwd(path, sizeof(path)));
     fgets (input, sizeof(input), stdin);
     
     
@@ -38,17 +68,13 @@ int main (){
       argc++;
     }
     argv[argc-1][strlen(argv[argc-1])-1] = 0; //remove last \n from string 
+    argv[argc] = NULL; //add terminating character
 
 
     if(strcmp(argv[0], "cd") == 0){ //cd 
       if(argc == 2){
-        strcat(bpath, argv[1]);
-        if(opendir(bpath) != NULL){
-          strcpy(path, bpath);
-          directory = opendir(path);
-        }else{
-          strcpy(bpath, path);
-          printf("That directory does not exist\n");
+        if(chdir(argv[1]) != 0){
+          printf("%s\n", strerror(errno));
         }
       }else{
         printf("Please only enter 2 arguments\n");
@@ -59,27 +85,22 @@ int main (){
 
     /* If necessary locate executable using mypath array 
     Launch executable */
-    
-    //while (stat(&strcat(mypath[i], argv[0]), &statbuf)){
-      printf("%s", strcat(mypath[0], argv[0]));
-      //i++;
-    //}
-   
- /*   if (fork() == 0){
-      if(strstr(argv[0], "/")){ //check if first arg contains a "/" 
-        while (execv(strcat(mypath[i], argv[0]), argv))
-          i++;
-        }else{
-          execv (argv[0], argv);
+    if (fork() == 0){
+      if(strstr(argv[0], "/") != NULL){ //check if first arg contains a "/" 
+        if(stat(argv[0], &statbuf) == 0){
+          execv(argv[0], argv);
         }
-    } else {
-      //wait (...);
+      }else{
+        if(findDefaultPath(statbuf, argv[0]) != NULL){
+          execv(findDefaultPath(statbuf, argv[0]), argv);
+        }
+      }
+    }else{
+      wait(&status);
     }
 
-*/
-
     //clear arg
-    for (i = 0; i <= argc; i++){
+    for (i = 0; i < argc; i++){
       argv[i][0] = '\0';
     }
     argc = 0;
