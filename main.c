@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
-#include <sys/stath.h>
+#include <sys/stat.h>
 
 const char *mypath[] = {
   "./",
@@ -21,6 +21,7 @@ int main (){
   char *argv[10];
   int argc = 0;
   int exit = 1;
+  int i;
   
   strcpy(path, "/home");
   strcpy(bpath, path);
@@ -58,15 +59,29 @@ int main (){
 
     /* If necessary locate executable using mypath array 
     Launch executable */
-    if (fork() == 0){
+    
+    //while (stat(&strcat(mypath[i], argv[0]), &statbuf)){
+      printf("%s", strcat(mypath[0], argv[0]));
+      //i++;
+    //}
+   
+ /*   if (fork() == 0){
       if(strstr(argv[0], "/")){ //check if first arg contains a "/" 
-        execv (...);
-      }
-      //TODO...
-    }else{
-      wait (...);
+        while (execv(strcat(mypath[i], argv[0]), argv))
+          i++;
+        }else{
+          execv (argv[0], argv);
+        }
+    } else {
+      //wait (...);
     }
 
+*/
+
+    //clear arg
+    for (i = 0; i <= argc; i++){
+      argv[i][0] = '\0';
+    }
     argc = 0;
   }
   return 0;
